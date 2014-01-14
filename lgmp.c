@@ -2491,7 +2491,7 @@ static int lgmp_initialize(lua_State *L)
 	return 0;
 }
 
-LGMP_API int luaopen_gmp(lua_State *L)
+LGMP_API int luaopen__gmp(lua_State *L)
 {
 	lua_pushcfunction(L, lgmp_initialize);
 	return 1;

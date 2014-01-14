@@ -1,8 +1,8 @@
 package="lgmp"
 version="0.1-1"
 source = {
-   url = "lgmp.tar.bz2",
-   md5 = "6ce2d144627fad7173ee368844a7e66e",
+   url = ".",
+--   md5 = "c1f8438961bf5b66b372bf68197811f2",
    dir = '.'
 }
 description = {
@@ -18,7 +18,7 @@ dependencies = {
 }
 
 external_dependencies = {
-    GPM = { library = "gpm" }
+    GMP = { library = "gmp" }
 }
 
 build = {
