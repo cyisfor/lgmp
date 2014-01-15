@@ -311,7 +311,7 @@ static int lmpz_or(lua_State *L)
 	mpz_t *arg1 = lgmp_toz(L, 1);
 	mpz_t *arg2 = lgmp_toz(L, 2);
 
-	mpz_or(*res, *arg1, *arg2);
+	mpz_ior(*res, *arg1, *arg2);
 
 	return 1;
 }

@@ -1,4 +1,4 @@
-require('./gmp')
+local gmp = require('gmp')
 
 print('lshift=',gmp.z(0x10):lshift(2):rshift(1))
 

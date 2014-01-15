@@ -9,22 +9,30 @@
 --  file that came with the distribution of lgmp for license details.
 --
 
-local require = require
-local type = type
-local getmetatable = getmetatable
-local assert = assert
-local error = error
-local match = string.match
+_G = {
+    require = require,
+    type = type,
+    getmetatable = getmetatable,
+    assert = assert,
+    error = error,
+    match = string.match,
+}
 
-module "gmp"
-
-local prv = {}
-local aux = {}
-require "_gmp" (prv, aux)
+local _M = {}
 
 local randmeta = {}
 local zmeta = {}
 local fmeta = {}
+
+local prv = {}
+local aux = {
+    randmeta = randmeta,
+    zmeta = zmeta,
+    fmeta = fmeta
+}
+-- fills prv with type creation functions, 
+-- uses aux to get metadata for various types
+require "_gmp" (prv, aux)
 
 randmeta.__index = randmeta
 zmeta.__index = zmeta
@@ -101,7 +109,9 @@ end
 local dtoz = prv.mpz_init_set_d
 local dtof = prv.mpf_init_set_d
 
-function z(value, base)
+-- note: most C init functions pull up _G.*meta than call setmetatable.
+
+function _M.z(value, base)
 	if value == nil then
 		return prv.mpz_init()
 	elseif type(value) == "number" then
@@ -126,7 +136,7 @@ function z(value, base)
 	end
 end
 
-function f(value, base)
+function _M.f(value, base)
 	if value == nil then
 		return prv.mpf_init()
 	elseif type(value) == "number" then
@@ -328,7 +338,7 @@ function zmeta:bin(a, res)
 	return prv.mpz_bin_ui(self, a, res)
 end
 
-function bin(a1, a2, res)
+function _M.bin(a1, a2, res)
 	checku(a2)
 	checkzopt(res)
 	local t = ntype(a1)
@@ -546,7 +556,7 @@ function zmeta:divisible_2exp(a)
 	return prv.mpz_divisible_2exp_p(self, a) ~= 0
 end
 
-function fac(a, res)
+function _M.fac(a, res)
 	checku(a)
 	checkzopt(res)
 	return prv.mpz_fac_ui(a, res)
@@ -634,13 +644,13 @@ function zmeta:fdiv(a)
 	end
 end
 
-function fib(a, res)
+function _M.fib(a, res)
 	checku(a)
 	checkzopt(res)
 	return prv.mpz_fib_ui(a, res)
 end
 
-function fib2(a, r1, r2)
+function _M.fib2(a, r1, r2)
 	checku(a)
 	checkzopt(r1)
 	checkzopt(r2)
@@ -807,13 +817,13 @@ function zmeta:lcm(a, res)
 	end
 end
 
-function lucnum(a, res)
+function _M.lucnum(a, res)
 	checku(a)
 	checkzopt(res)
 	return prv.mpz_lucnum_ui(a, res)
 end
 
-function lucnum2(a, r1, r2)
+function _M.lucnum2(a, r1, r2)
 	checku(a)
 	checkzopt(r1)
 	checkzopt(r2)
@@ -1171,7 +1181,7 @@ function zmeta:rshift(a)
     return self
 end
 
-function pow(a1, a2, res)
+function _M.pow(a1, a2, res)
 	checku(a2)
 	checkzopt(res)
 	local t = ntype(a1)
@@ -1374,7 +1384,7 @@ function fmeta:reldiff(a, res)
 	return prv.mpf_reldiff(self, a, res)
 end
 
-function set_default_prec(a)
+function _M.set_default_prec(a)
 	checku(a)
 	prv.mpf_set_default_prec(a)
 end
@@ -1420,7 +1430,7 @@ function fmeta:sqrt(res)
 	return prv.mpf_sqrt(self, res)
 end
 
-function sqrt(a, res)
+function _M.sqrt(a, res)
 	checku(a)
 	checkfopt(res)
 	return prv.mpf_sqrt_ui(a, res)
@@ -1563,7 +1573,7 @@ function fmeta:__gc()
 	return prv.mpf_clear(self)
 end
 
-function rand(a)
+function _M.rand(a)
 	if a == nil then
 		return prv.gmp_randinit_default()
 	else
@@ -1653,8 +1663,6 @@ function fmeta:format(fmt, p)
 	return prv.mpf_asprintf("%" .. fw .. prec .. "F" .. conv, self, p)
 end
 
-aux.randmeta = randmeta
-aux.zmeta = zmeta
-aux.fmeta = fmeta
+_M.version = prv.version
 
-version = prv.version
+return _M
