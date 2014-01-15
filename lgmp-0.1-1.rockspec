@@ -1,9 +1,8 @@
 package="lgmp"
 version="0.1-1"
 source = {
-   url = ".",
---   md5 = "c1f8438961bf5b66b372bf68197811f2",
-   dir = '.'
+   url = "git://github.com/cyisfor/lgmp.git",
+   dir='lgmp'
 }
 description = {
    summary = "GNU MP multiprecision library interface",
@@ -22,7 +21,8 @@ external_dependencies = {
 }
 
 build = {
-   type = "builtin",
+   -- type = "command", build_command="bash",
+   type="builtin",
    modules = {
       gmp = "gmp.lua",
       _gmp = {

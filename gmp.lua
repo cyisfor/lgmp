@@ -1135,6 +1135,18 @@ function zmeta:tstbit(a)
 	return prv.mpz_tstbit(self, a)
 end
 
+function zmeta:lshift(a)
+    checkz(self)
+    prv.mpz_lshift(self,a)
+    return self
+end
+
+function zmeta:rshift(a)
+    checkz(self)
+    prv.mpz_rshift(self,a)
+    return self
+end
+
 function pow(a1, a2, res)
 	checku(a2)
 	checkzopt(res)

@@ -841,6 +841,53 @@ static int lmpz_gcd_ui(lua_State *L)
 	return 2;
 }
 
+static int real_rshift(mpz_t n, unsigned int amt) {
+    mp_size_t limbs = mpz_size(n);
+    if(limbs == 0) {
+        return 0;
+    }
+    mp_limb_t* limb = n->_mp_d;
+    mpn_rshift(limb,limb,limbs,amt);
+    return 0;
+}
+
+static int real_lshift(mpz_t n, unsigned int amt) {
+    mp_size_t limbs = mpz_size(n);
+    if(limbs == 0) {
+        return 0;
+    }
+    mp_limb_t* limb = n->_mp_d;
+    mpn_lshift(limb,limb,limbs,amt);
+    return 0;
+}
+
+static int lmpz_lshift(lua_State *L) 
+{
+	mpz_t *n = lgmp_toz(L, 1);
+	int amt = lua_tointeger(L, 2);
+    lua_pop(L,1);
+    if(amt == 0) {
+        return 0;
+    } else if(amt < 0) {
+        return real_rshift(*n,-amt);
+    }
+    return real_lshift(*n,amt);
+}
+
+static int lmpz_rshift(lua_State *L) 
+{
+	mpz_t *n = lgmp_toz(L, 1);
+	int amt = lua_tointeger(L, 2);
+    lua_pop(L,1);
+    if(amt == 0) {
+        return 0;
+    } else if(amt < 0) {
+        return real_lshift(*n,-amt);
+    }
+    return real_rshift(*n,amt);
+}
+    
+	
 static int lmpz_gcdext(lua_State *L)
 {
 	mpz_t *resg = lgmp_optz(L, 3, 5);
@@ -2360,6 +2407,7 @@ static const luaL_Reg lgmp_prv[] =
 	{"mpz_ui_kronecker", lmpz_ui_kronecker},
 	{"mpz_lcm", lmpz_lcm},
 	{"mpz_lcm_ui", lmpz_lcm_ui},
+	{"mpz_lshift", lmpz_lshift},
 	{"mpz_lucnum_ui", lmpz_lucnum_ui},
 	{"mpz_lucnum2_ui", lmpz_lucnum2_ui},
 	{"mpz_millerrabin", lmpz_millerrabin},
@@ -2381,6 +2429,7 @@ static const luaL_Reg lgmp_prv[] =
 	{"mpz_root", lmpz_root},
 	{"mpz_rootrem", lmpz_rootrem},
 	{"mpz_rrandomb", lmpz_rrandomb},
+	{"mpz_rshift", lmpz_rshift},
 	{"mpz_scan0", lmpz_scan0},
 	{"mpz_scan1", lmpz_scan1},
 	{"mpz_set", lmpz_set},
