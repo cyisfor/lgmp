@@ -284,13 +284,37 @@ function zmeta:addmul(a1, a2)
 	end
 end
 
-function zmeta:And(a, res)
+function zmeta:AND(a, res)
 	checkz(self)
 	checkzopt(res)
 	if type(a) == "number" then
 		return prv.mpz_and(self, dtoz(a), res)
 	elseif isz(a) then
 		return prv.mpz_and(self, a, res)
+	else
+		error("unsupported type")
+	end
+end
+
+function zmeta:OR(a, res)
+	checkz(self)
+	checkzopt(res)
+	if type(a) == "number" then
+		return prv.mpz_or(self, dtoz(a), res)
+	elseif isz(a) then
+		return prv.mpz_or(self, a, res)
+	else
+		error("unsupported type")
+	end
+end
+
+function zmeta:XOR(a, res)
+	checkz(self)
+	checkzopt(res)
+	if type(a) == "number" then
+		return prv.mpz_xor(self, dtoz(a), res)
+	elseif isz(a) then
+		return prv.mpz_xor(self, a, res)
 	else
 		error("unsupported type")
 	end
@@ -1170,15 +1194,7 @@ function pow(a1, a2, res)
 end
 
 function zmeta:xor(a, res)
-	checkz(self)
-	checkzopt(res)
-	if type(a) == "number" then
-		return prv.mpz_xor(self, dtoz(a), res)
-	elseif isz(a) then
-		return prv.mpz_xor(self, a, res)
-	else
-		error("unsupported type")
-	end
+    return self:XOR(a,res)
 end
 
 function fmeta:abs(res)

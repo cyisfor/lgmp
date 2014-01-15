@@ -305,6 +305,27 @@ static int lmpz_and(lua_State *L)
 	return 1;
 }
 
+static int lmpz_or(lua_State *L)
+{
+	mpz_t *res = lgmp_optz(L, 3, 3);
+	mpz_t *arg1 = lgmp_toz(L, 1);
+	mpz_t *arg2 = lgmp_toz(L, 2);
+
+	mpz_or(*res, *arg1, *arg2);
+
+	return 1;
+}
+
+static int lmpz_xor(lua_State *L)
+{
+	mpz_t *res = lgmp_optz(L, 3, 3);
+	mpz_t *arg1 = lgmp_toz(L, 1);
+	mpz_t *arg2 = lgmp_toz(L, 2);
+
+	mpz_xor(*res, *arg1, *arg2);
+
+	return 1;
+}
 #if 0
 #define mpz_array_init __gmpz_array_init
 __GMP_DECLSPEC void mpz_array_init __GMP_PROTO ((mpz_ptr, mp_size_t, mp_size_t));
@@ -1710,17 +1731,6 @@ static int lmpz_urandomm(lua_State *L)
 	return 1;
 }
 
-static int lmpz_xor(lua_State *L)
-{
-	mpz_t *res = lgmp_optz(L, 3, 3);
-	mpz_t *arg1 = lgmp_toz(L, 1);
-	mpz_t *arg2 = lgmp_toz(L, 2);
-
-	mpz_xor(*res, *arg1, *arg2);
-
-	return 1;
-}
-
 static int lmpf_abs(lua_State *L)
 {
 	mpf_t *res = lgmp_optf(L, 2, 2);
@@ -2338,6 +2348,8 @@ static const luaL_Reg lgmp_prv[] =
 	{"mpz_addmul", lmpz_addmul},
 	{"mpz_addmul_ui", lmpz_addmul_ui},
 	{"mpz_and", lmpz_and},
+	{"mpz_or", lmpz_or},
+	{"mpz_xor", lmpz_xor},
 	{"mpz_asprintf", lmpz_asprintf},
 	{"mpz_bin_ui", lmpz_bin_ui},
 	{"mpz_bin_uiui", lmpz_bin_uiui},
