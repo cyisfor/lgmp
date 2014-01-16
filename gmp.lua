@@ -9,14 +9,15 @@
 --  file that came with the distribution of lgmp for license details.
 --
 
-_G = {
+setfenv(1,{
     require = require,
     type = type,
     getmetatable = getmetatable,
     assert = assert,
     error = error,
     match = string.match,
-}
+    print = print
+})
 
 local _M = {}
 
@@ -1320,7 +1321,7 @@ function fmeta:get_d_2exp()
 	return prv.mpf_get_d_2exp(self)
 end
 
-get_default_prec = prv.mpf_get_default_prec
+_M.get_default_prec = prv.mpf_get_default_prec
 
 function fmeta:get_prec()
 	checkf(self)
