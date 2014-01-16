@@ -557,6 +557,15 @@ function zmeta:divisible_2exp(a)
 	return prv.mpz_divisible_2exp_p(self, a) ~= 0
 end
 
+function zmeta:export()
+    checkz(self)
+    return prv.mpz_export(self)
+end
+
+function _M.importz(s)
+    return prv.mpz_import(s)
+end
+
 function _M.fac(a, res)
 	checku(a)
 	checkzopt(res)

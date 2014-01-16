@@ -52,12 +52,12 @@ I have no plans (yet) to add support for rationals.
 > =x, y
 4	87
 
-> -- returns nothing but updates &ldquo;self&rdquo;
+> -- returns nothing but updates "self"
 > =x:addmul(y, 3)
 > =x, y
 265	87
 
-> -- returns nothing but sets &ldquo;self&rdquo; to new integer value
+> -- returns nothing but sets "self" to new integer value
 > =x:set "123456789123456789123456789"
-> =x
+> =x 
 123456789123456789123456789

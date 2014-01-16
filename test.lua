@@ -60,4 +60,13 @@ describe("GNU Multiprecision Library",function()
     it("real powers", function()
         assert.same(gmp.f("2")^3,gmp.f("2")*4)
     end)
+
+    it("import/export", function()
+        for _,n in ipairs({
+            gmp.z(0),
+            gmp.z(42),
+            gmp.z(2)^0x200-1}) do
+            assert.same(n,gmp.importz(n:export()))
+        end
+    end)
 end)

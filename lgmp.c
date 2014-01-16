@@ -655,6 +655,24 @@ __GMP_DECLSPEC void mpz_dump __GMP_PROTO ((mpz_srcptr));
 __GMP_DECLSPEC void *mpz_export __GMP_PROTO ((void *, size_t *, int, size_t, int, size_t, mpz_srcptr));
 #endif
 
+static int lmpz_export(lua_State *L)
+{
+    mpz_t* n = lgmp_toz(L,1);
+    size_t count = 0;
+    char* s = mpz_export(NULL, &count, -1, 1, -1, 0, *n);
+    lua_pushlstring(L,s,count);
+    free(s);
+    return 1;
+}
+
+static int lmpz_import(lua_State *L) {
+    size_t count;
+    const char* s = luaL_checklstring(L, 1, &count);
+    mpz_t* n = lgmp_rawz(L);
+    mpz_import(*n, count, -1, 1, -1, 0, s);
+    return 1;
+}
+
 static int lmpz_fac_ui(lua_State *L)
 {
 	mpz_t *res = lgmp_optz(L, 2, 2);
@@ -2381,6 +2399,8 @@ static const luaL_Reg lgmp_prv[] =
 	{"mpz_divisible_p", lmpz_divisible_p},
 	{"mpz_divisible_ui_p", lmpz_divisible_ui_p},
 	{"mpz_divisible_2exp_p", lmpz_divisible_2exp_p},
+	{"mpz_export", lmpz_export},
+	{"mpz_import", lmpz_import},
 	{"mpz_fac_ui", lmpz_fac_ui},
 	{"mpz_fdiv_q", lmpz_fdiv_q},
 	{"mpz_fdiv_q_2exp", lmpz_fdiv_q_2exp},
