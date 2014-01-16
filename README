@@ -1,0 +1,63 @@
+LGMP - A GMP package for Lua 5.1
+    - Wim Couwenberg - July 2007
+
+The package offers the GNU multiple precision arithmetic library for Lua 5.1.  
+Currently it supports only the integer, floating point and random state types.
+I have no plans (yet) to add support for rationals.
+
+> -- load lgmp package
+> local gmp = require("gmp");
+
+> -- create two gmp integers
+> x = gmp.z(123)
+> y = gmp.z(456)
+
+> -- compute their sum
+> =x:add(y)
+579
+
+> -- x and y are left unchanged
+> =x, y
+123	456
+
+> -- compute sum, update and return x
+> =x:add(y,x)
+579
+
+> -- x is updated
+> =x, y
+579	456
+
+> -- compute quotient and remainder
+> =x:fdiv_qr(y)
+1	123
+
+> -- x and y are left unchanged
+> =x, y
+579	456
+
+> -- update y with remainder and return quotient, y
+> =x:fdiv_qr(y, nil, y)
+1	123
+
+> -- y is updated, x is left unchanged
+> =x, y
+579	123
+
+> -- update x and y to quotient and remainder and return x, y
+> =x:fdiv_qr(y, x, y)
+4	87
+
+> -- x and y are both updated
+> =x, y
+4	87
+
+> -- returns nothing but updates &ldquo;self&rdquo;
+> =x:addmul(y, 3)
+> =x, y
+265	87
+
+> -- returns nothing but sets &ldquo;self&rdquo; to new integer value
+> =x:set "123456789123456789123456789"
+> =x
+123456789123456789123456789
