@@ -1675,4 +1675,6 @@ end
 
 _M.version = prv.version
 
+_M.zero = prv.mpz_init()
+
 return _M

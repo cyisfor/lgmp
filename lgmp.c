@@ -659,8 +659,8 @@ static int lmpz_export(lua_State *L)
 {
     mpz_t* n = lgmp_toz(L,1);
     size_t count = 0;
-    char* s = mpz_export(NULL, &count, -1, 1, -1, 0, *n);
-    lua_pushlstring(L,s,count);
+    char* s = mpz_export(NULL, &count, -1, sizeof(mp_limb_t), -1, 0, *n);
+    lua_pushlstring(L,s,count*sizeof(mp_limb_t));
     free(s);
     return 1;
 }
@@ -669,7 +669,8 @@ static int lmpz_import(lua_State *L) {
     size_t count;
     const char* s = luaL_checklstring(L, 1, &count);
     mpz_t* n = lgmp_rawz(L);
-    mpz_import(*n, count, -1, 1, -1, 0, s);
+    mpz_init(*n);
+    mpz_import(*n, count/sizeof(mp_limb_t), -1, sizeof(mp_limb_t), -1, 0, s);
     return 1;
 }
 
@@ -880,26 +881,68 @@ static int lmpz_gcd_ui(lua_State *L)
 	return 2;
 }
 
-static int real_rshift(mpz_t n, unsigned int amt) {
+static void trusted_rshift(mpz_t n, unsigned int amt) {
+    int i;
     mp_size_t limbs = mpz_size(n);
     if(limbs == 0) {
-        return 0;
+        return;
     }
     mp_limb_t* limb = n->_mp_d;
     mpn_rshift(limb,limb,limbs,amt);
-    return 0;
+    /* only have to do this once, since amt < mp_bits_per_limb */
+    if(*limb == 0) {
+        /* memmove might copy to a temp area, so just do the assignment manually...*/
+        for(i=1;i<limbs;++i) {
+            limb[i-1] = limb[i];
+        }
+        --n->_mp_size;
+    }
+
+    return;
 }
 
-static int real_lshift(mpz_t n, unsigned int amt) {
+static void trusted_lshift(mpz_t n, unsigned int amt) {
+    int i;
     mp_size_t limbs = mpz_size(n);
     if(limbs == 0) {
-        return 0;
+        return;
     }
     mp_limb_t* limb = n->_mp_d;
-    mpn_lshift(limb,limb,limbs,amt);
-    return 0;
+    mp_limb_t bits = mpn_lshift(limb,limb,limbs,amt);
+    for(i=0;i<limbs;++i) {
+    }
+    if(bits) {
+        /* add another limb to hold these */
+        mp_size_t alloc = n->_mp_alloc;
+        if(alloc <= limbs) {            
+            mpz_realloc2(n,alloc+1);
+        }
+        for(i=0;i<limbs;++i) {
+            limb[i+1] = limb[i];
+        }
+        limb[0] = bits;
+        ++n->_mp_size;
+    }
+    return;
 }
 
+static void real_lshift(mpz_t n, unsigned int amt) {
+    while(amt > mp_bits_per_limb-1) {
+        trusted_lshift(n,mp_bits_per_limb-1);
+        amt -= mp_bits_per_limb-1;
+    }
+    if(amt) 
+        trusted_lshift(n,amt);
+}
+
+static void real_rshift(mpz_t n, unsigned int amt) {
+    while(amt > mp_bits_per_limb-1) {
+        trusted_rshift(n,mp_bits_per_limb-1);
+        amt -= mp_bits_per_limb-1;
+    }
+    if(amt) 
+        trusted_rshift(n,amt);
+}
 static int lmpz_lshift(lua_State *L) 
 {
 	mpz_t *n = lgmp_toz(L, 1);
@@ -908,9 +951,11 @@ static int lmpz_lshift(lua_State *L)
     if(amt == 0) {
         return 0;
     } else if(amt < 0) {
-        return real_rshift(*n,-amt);
+        real_rshift(*n,-amt);
+        return;
     }
-    return real_lshift(*n,amt);
+    real_lshift(*n,amt);
+    return 0;
 }
 
 static int lmpz_rshift(lua_State *L) 
@@ -921,9 +966,11 @@ static int lmpz_rshift(lua_State *L)
     if(amt == 0) {
         return 0;
     } else if(amt < 0) {
-        return real_lshift(*n,-amt);
+        real_lshift(*n,-amt);
+        return 0;
     }
-    return real_rshift(*n,amt);
+    real_rshift(*n,amt);
+    return 0;
 }
     
 	

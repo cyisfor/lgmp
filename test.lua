@@ -64,7 +64,7 @@ describe("GNU Multiprecision Library",function()
     it("import/export", function()
         for _,n in ipairs({
             gmp.z(0),
-            gmp.z(42),
+            gmp.z(42^20),
             gmp.z(2)^0x200-1}) do
             assert.same(n,gmp.importz(n:export()))
         end
